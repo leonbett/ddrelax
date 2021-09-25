@@ -120,12 +120,12 @@ def rule_normalized_difference(rulesA, rulesB):
                 if not gmultiple.normalized_rule_match(rA, ruleB)]
     return rem_rulesA
 
-def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
+def unmatch_a_refined_rule_in_pattern_grammar(refined_rule, base_rule):
     negated_rules = []
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
         if gatleast.is_base_key(token): continue
-        r = [negate_nonterminal(t) if i==pos else t for i,t in enumerate(refined_rule)]
+        r = [negate_nonterminal(t) if i==pos else base_rule[i] for i,t in enumerate(refined_rule)] # get non-specialized base rule for non negated.
         negated_rules.append(r)
     return negated_rules
 
@@ -133,15 +133,14 @@ def unmatch_definition_in_pattern_grammar(refined_rules, base_rules):
     # Given the set of rules, we take one rule at a time,
     # and generate the negated rule set from that.
     negated_rules_refined = []
-    for ruleR in refined_rules:
-        neg_rules = unmatch_a_refined_rule_in_pattern_grammar(ruleR)
+    for i, ruleR in enumerate(refined_rules):
+        neg_rules = unmatch_a_refined_rule_in_pattern_grammar(ruleR, base_rules[i])
         negated_rules_refined.extend(neg_rules)
 
     # Finally, we need to add the other non-matching rules to the pattern def.
     negated_rules_base = rule_normalized_difference(base_rules, refined_rules)
 
     return negated_rules_refined + negated_rules_base
-
 
 def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
     negated_grammar = {}

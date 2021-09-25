@@ -99,11 +99,15 @@ class ReconstructRules(gexpr.ReconstructRules):
         d, s = orules, bexpr.negate().with_key(key)
         #else:
         #    d, s = self.reconstruct_rules_from_bexpr(key, fst)
-        d1 = negate_definition(negate_nonterminal(s), d, self.base_grammar)
+        if d != []:
+            d1 = negate_definition(negate_nonterminal(s), d, self.base_grammar)
+            combined_rules = gmultiple.and_definitions(d1, negated_pattern_rules)
+        else:
+            combined_rules = negated_pattern_rules
         # at this point, we want to drop from d1 all the rules corresponding to
         # prule.
 
-        combined_rules = gmultiple.and_definitions(d1, negated_pattern_rules)
+
         #combined_rules = d1 + negated_pattern_rules # TODO; should this be `and`ed?
         return combined_rules, f_key
 
